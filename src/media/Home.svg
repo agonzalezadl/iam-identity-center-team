@@ -1,127 +1,97 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" width="900" height="500">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540" width="900" height="540">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0a1628;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0d2240;stop-opacity:1" />
+    <linearGradient id="adlGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00c9a7"/>
+      <stop offset="100%" style="stop-color:#0080ff"/>
     </linearGradient>
-    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#00c9a7;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0080ff;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#112240;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0d1f3c;stop-opacity:1" />
-    </linearGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="shadow">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#00c9a7" flood-opacity="0.3"/>
-    </filter>
   </defs>
 
-  <!-- Background -->
-  <rect width="900" height="500" fill="url(#bgGrad)"/>
+  <!-- White background -->
+  <rect width="900" height="540" fill="#ffffff"/>
 
-  <!-- Grid pattern subtle -->
-  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-width="0.2" opacity="0.08"/>
-  </pattern>
-  <rect width="900" height="500" fill="url(#grid)"/>
+  <!-- ═══════════════════════════════ -->
+  <!-- LEFT SIDE CONTENT              -->
+  <!-- ═══════════════════════════════ -->
 
-  <!-- Decorative circles background -->
-  <circle cx="750" cy="80" r="120" fill="none" stroke="#00c9a7" stroke-width="0.5" opacity="0.15"/>
-  <circle cx="750" cy="80" r="80" fill="none" stroke="#00c9a7" stroke-width="0.5" opacity="0.15"/>
-  <circle cx="750" cy="80" r="40" fill="#00c9a7" opacity="0.05"/>
-  <circle cx="120" cy="420" r="90" fill="none" stroke="#0080ff" stroke-width="0.5" opacity="0.15"/>
-  <circle cx="120" cy="420" r="50" fill="none" stroke="#0080ff" stroke-width="0.5" opacity="0.1"/>
-
-  <!-- Left side content -->
-  <!-- ADL Logo area -->
-  <rect x="60" y="60" width="4" height="60" rx="2" fill="url(#accentGrad)"/>
-
-  <!-- ADL text logo -->
-  <text x="80" y="88" font-family="Arial, sans-serif" font-size="28" font-weight="900" fill="#ffffff" letter-spacing="3">ADL</text>
-  <text x="80" y="108" font-family="Arial, sans-serif" font-size="11" font-weight="400" fill="#00c9a7" letter-spacing="4">DIGITAL LAB</text>
-
-  <!-- Divider line -->
-  <line x1="60" y1="145" x2="420" y2="145" stroke="url(#accentGrad)" stroke-width="1" opacity="0.4"/>
-
-  <!-- DevOps badge -->
-  <rect x="60" y="160" width="90" height="26" rx="13" fill="url(#accentGrad)" opacity="0.9"/>
-  <text x="105" y="177" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="1">DevOps</text>
-
-  <!-- Main title -->
-  <text x="60" y="240" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#8892b0" letter-spacing="3">IAM IDENTITY CENTER</text>
-  <text x="60" y="285" font-family="Arial, sans-serif" font-size="36" font-weight="900" fill="#ffffff">Temporary</text>
-  <text x="60" y="330" font-family="Arial, sans-serif" font-size="36" font-weight="900" fill="#ffffff">Elevated</text>
-  <text x="60" y="375" font-family="Arial, sans-serif" font-size="36" font-weight="900">
-    <tspan fill="url(#accentGrad)">Access</tspan>
-    <tspan fill="#ffffff"> Mgmt</tspan>
-  </text>
-
-  <!-- Description -->
-  <text x="60" y="415" font-family="Arial, sans-serif" font-size="13" fill="#8892b0">Automated, approval-based workflow for</text>
-  <text x="60" y="433" font-family="Arial, sans-serif" font-size="13" fill="#8892b0">elevating user permissions on AWS</text>
-
-  <!-- Right side illustration -->
-  <!-- Main card/screen -->
-  <rect x="490" y="80" width="360" height="340" rx="16" fill="url(#cardGrad)" filter="url(#shadow)" opacity="0.95"/>
-  <rect x="490" y="80" width="360" height="340" rx="16" fill="none" stroke="url(#accentGrad)" stroke-width="1" opacity="0.3"/>
-
-  <!-- Card header bar -->
-  <rect x="490" y="80" width="360" height="50" rx="16" fill="#0a1628" opacity="0.8"/>
-  <rect x="490" y="106" width="360" height="24" fill="#0a1628" opacity="0.8"/>
-
-  <!-- Window dots -->
-  <circle cx="518" cy="105" r="6" fill="#ff5f57"/>
-  <circle cx="538" cy="105" r="6" fill="#febc2e"/>
-  <circle cx="558" cy="105" r="6" fill="#28c840"/>
-
-  <!-- Tab bar text -->
-  <text x="590" y="110" font-family="Arial, sans-serif" font-size="11" fill="#8892b0">TEAM · Access Portal</text>
-
-  <!-- Shield icon center -->
-  <g transform="translate(610, 145)" filter="url(#glow)">
-    <path d="M60,10 L110,30 L110,70 C110,95 85,115 60,125 C35,115 10,95 10,70 L10,30 Z" fill="url(#accentGrad)" opacity="0.15"/>
-    <path d="M60,10 L110,30 L110,70 C110,95 85,115 60,125 C35,115 10,95 10,70 L10,30 Z" fill="none" stroke="url(#accentGrad)" stroke-width="2"/>
-    <!-- Check mark inside shield -->
-    <path d="M38,65 L53,80 L82,48" fill="none" stroke="#00c9a7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- ADL Logo — top left -->
+  <g transform="translate(40, 30)">
+    <rect x="0" y="0" width="3.5" height="50" rx="1.5" fill="url(#adlGrad)"/>
+    <text x="14" y="22" font-family="Arial Black, Arial, sans-serif" font-size="22" font-weight="900" fill="#0a1628" letter-spacing="2">ADL</text>
+    <text x="14" y="38" font-family="Arial, sans-serif" font-size="9" font-weight="600" fill="#00c9a7" letter-spacing="4">DIGITAL LAB</text>
   </g>
 
-  <!-- Access request cards -->
-  <rect x="510" y="295" width="150" height="60" rx="8" fill="#0a1628" opacity="0.9"/>
-  <rect x="510" y="295" width="150" height="60" rx="8" fill="none" stroke="#00c9a7" stroke-width="1" opacity="0.4"/>
-  <circle cx="530" cy="315" r="8" fill="#00c9a7" opacity="0.2"/>
-  <circle cx="530" cy="315" r="4" fill="#00c9a7"/>
-  <rect x="545" y="309" width="100" height="8" rx="4" fill="#8892b0" opacity="0.4"/>
-  <rect x="545" y="322" width="70" height="6" rx="3" fill="#00c9a7" opacity="0.3"/>
-  <rect x="510" y="340" width="150" height="3" rx="2" fill="url(#accentGrad)" opacity="0.6"/>
-  <text x="520" y="352" font-family="Arial, sans-serif" font-size="9" fill="#00c9a7">✓ APPROVED</text>
+  <!-- DevOps badge -->
+  <rect x="54" y="86" width="68" height="20" rx="10" fill="url(#adlGrad)"/>
+  <text x="88" y="100" font-family="Arial, sans-serif" font-size="9.5" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">DevOps</text>
 
-  <rect x="680" y="295" width="150" height="60" rx="8" fill="#0a1628" opacity="0.9"/>
-  <rect x="680" y="295" width="150" height="60" rx="8" fill="none" stroke="#0080ff" stroke-width="1" opacity="0.4"/>
-  <circle cx="700" cy="315" r="8" fill="#0080ff" opacity="0.2"/>
-  <circle cx="700" cy="315" r="4" fill="#0080ff"/>
-  <rect x="715" y="309" width="100" height="8" rx="4" fill="#8892b0" opacity="0.4"/>
-  <rect x="715" y="322" width="80" height="6" rx="3" fill="#0080ff" opacity="0.3"/>
-  <rect x="680" y="340" width="150" height="3" rx="2" fill="#0080ff" opacity="0.6"/>
-  <text x="690" y="352" font-family="Arial, sans-serif" font-size="9" fill="#0080ff">⏳ PENDING</text>
+  <!-- Divider line -->
+  <line x1="40" y1="116" x2="380" y2="116" stroke="url(#adlGrad)" stroke-width="0.8" opacity="0.25"/>
 
-  <!-- Connecting lines between elements -->
-  <line x1="585" y1="200" x2="620" y2="240" stroke="url(#accentGrad)" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
-  <line x1="730" y1="200" x2="700" y2="240" stroke="url(#accentGrad)" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
+  <!-- IAM IDENTITY CENTER label -->
+  <text x="40" y="148" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#687078" letter-spacing="2">IAM Identity Center</text>
 
-  <!-- Bottom accent line -->
-  <rect x="0" y="492" width="900" height="8" rx="0" fill="url(#accentGrad)" opacity="0.8"/>
+  <!-- Main title — 4 lines to fit full text -->
+  <text x="40" y="205" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="#16191f">Temporary</text>
+  <text x="40" y="253" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="#16191f">Elevated</text>
+  <text x="40" y="301" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="#16191f">Access</text>
+  <text x="40" y="349" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="url(#adlGrad)">Management</text>
 
-  <!-- Floating particles -->
-  <circle cx="450" cy="150" r="3" fill="#00c9a7" opacity="0.6"/>
-  <circle cx="470" cy="200" r="2" fill="#0080ff" opacity="0.5"/>
-  <circle cx="440" cy="320" r="2" fill="#00c9a7" opacity="0.4"/>
-  <circle cx="460" cy="380" r="3" fill="#0080ff" opacity="0.5"/>
+  <!-- Description -->
+  <text x="40" y="390" font-family="Arial, sans-serif" font-size="13" fill="#687078">Automated, approval-based workflow for elevating user</text>
+  <text x="40" y="408" font-family="Arial, sans-serif" font-size="13" fill="#687078">permission on AWS</text>
+
+  <!-- Space reserved for React button -->
+
+  <!-- ═══════════════════════════════ -->
+  <!-- RIGHT SIDE ILLUSTRATION        -->
+  <!-- ═══════════════════════════════ -->
+
+  <!-- Main screen card -->
+  <rect x="490" y="40" width="370" height="310" rx="14" fill="#f8f9ff" stroke="#e3e8f0" stroke-width="1.5"/>
+  <!-- Browser bar -->
+  <rect x="490" y="40" width="370" height="36" rx="14" fill="#edf0f8"/>
+  <rect x="490" y="62" width="370" height="14" fill="#edf0f8"/>
+  <!-- Browser dots -->
+  <circle cx="512" cy="58" r="5.5" fill="#ff6b6b"/>
+  <circle cx="529" cy="58" r="5.5" fill="#ffd93d"/>
+  <circle cx="546" cy="58" r="5.5" fill="#6bcb77"/>
+  <text x="572" y="62" font-family="Arial, sans-serif" font-size="10" fill="#9ba5b5">TEAM · Access Portal</text>
+
+  <!-- Screen content -->
+  <rect x="515" y="95" width="220" height="10" rx="5" fill="#dde3f0"/>
+  <rect x="515" y="115" width="170" height="8" rx="4" fill="#eaecf5"/>
+  <rect x="515" y="133" width="190" height="8" rx="4" fill="#eaecf5"/>
+
+  <!-- Shield security icon -->
+  <path d="M670 155 L705 167 L705 192 C705 210 687.5 221 670 227 C652.5 221 635 210 635 192 L635 167 Z" fill="url(#adlGrad)" opacity="0.12"/>
+  <path d="M670 155 L705 167 L705 192 C705 210 687.5 221 670 227 C652.5 221 635 210 635 192 L635 167 Z" fill="none" stroke="url(#adlGrad)" stroke-width="2"/>
+  <path d="M657 191 L666 200 L685 177" fill="none" stroke="#00c9a7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Approved card -->
+  <rect x="505" y="250" width="160" height="62" rx="9" fill="#ffffff" stroke="#e0e8f0" stroke-width="1"/>
+  <circle cx="527" cy="271" r="8" fill="#00c9a7" opacity="0.15"/>
+  <circle cx="527" cy="271" r="4.5" fill="#00c9a7"/>
+  <rect x="542" y="265" width="105" height="8" rx="4" fill="#dde3f0"/>
+  <rect x="542" y="278" width="75" height="6" rx="3" fill="#eaecf5"/>
+  <rect x="505" y="298" width="160" height="3" rx="1.5" fill="url(#adlGrad)" opacity="0.7"/>
+  <text x="514" y="308" font-family="Arial, sans-serif" font-size="9" fill="#00c9a7" font-weight="700">✓ APPROVED</text>
+
+  <!-- Pending card -->
+  <rect x="685" y="250" width="160" height="62" rx="9" fill="#ffffff" stroke="#e0e8f0" stroke-width="1"/>
+  <circle cx="707" cy="271" r="8" fill="#0080ff" opacity="0.15"/>
+  <circle cx="707" cy="271" r="4.5" fill="#0080ff"/>
+  <rect x="722" y="265" width="105" height="8" rx="4" fill="#dde3f0"/>
+  <rect x="722" y="278" width="85" height="6" rx="3" fill="#eaecf5"/>
+  <rect x="685" y="298" width="160" height="3" rx="1.5" fill="#0080ff" opacity="0.5"/>
+  <text x="694" y="308" font-family="Arial, sans-serif" font-size="9" fill="#0080ff" font-weight="700">⏳ PENDING</text>
+
+  <!-- Person sitting at desk -->
+  <ellipse cx="410" cy="370" rx="55" ry="20" fill="#f0f2f8"/>
+  <circle cx="410" cy="325" r="22" fill="#dde3f0"/>
+  <path d="M375 365 Q410 345 445 365 L450 400 L370 400 Z" fill="#dde3f0"/>
+  <rect x="382" y="385" width="56" height="28" rx="5" fill="#c5cfe8"/>
+  <rect x="386" y="388" width="48" height="20" rx="3" fill="#8aa0d0"/>
+
+  <!-- Bottom accent bar -->
+  <rect x="0" y="534" width="900" height="6" rx="0" fill="url(#adlGrad)" opacity="0.9"/>
 </svg>
