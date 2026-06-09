@@ -152,9 +152,11 @@ ul {
 }
 .homebutton {
   position: absolute;
-  left: 240px;
+  left: 40px;
+  top: 460px;
   font-size: 15px;
   border: none;
+  z-index: 10;
 }
 .layout {
   background: #fff;
