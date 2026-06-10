@@ -7,7 +7,7 @@ import { Amplify, Auth, Hub } from "aws-amplify";
 import { Spin, Layout } from "antd";
 import awsconfig from "./aws-exports";
 import Nav from "./components/Navigation/Nav";
-import home from "./media/Home.svg";
+import home from "./media/Home_optionB.svg";
 import "./index.css";
 import { Button } from "@awsui/components-react";
 
@@ -21,14 +21,17 @@ function Home(props) {
       <Header className="site-layout-background" style={{ padding: 0 }} />
       <Content className="layout">
         <Spin spinning={props.loading} size="large">
-          <Button
-            className="homebutton"
-            variant="primary"
-            onClick={() => Auth.federatedSignIn()}
-          >
-            Federated Sign In
-          </Button>
-          <img src={home} alt="Homepage" className="home" />
+          <div className="home-container">
+            <img src={home} alt="Homepage" className="home" />
+            <div className="home-signin">
+              <Button
+                variant="primary"
+                onClick={() => Auth.federatedSignIn()}
+              >
+                Federated Sign In
+              </Button>
+            </div>
+          </div>
         </Spin>
       </Content>
     </Layout>
