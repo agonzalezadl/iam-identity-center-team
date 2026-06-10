@@ -99,6 +99,7 @@
           "arm64"
         ],
         "Runtime": "python3.10",
+        "MemorySize": 1024,
         "Layers": [],
         "Timeout": 300
       }

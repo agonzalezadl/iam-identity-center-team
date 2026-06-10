@@ -11,5 +11,12 @@
   {
     "Action": ["organizations:DescribeOrganization"],
     "Resource": ["*"]
+  },
+  {
+    "Action": [
+      "ssm:GetParameter",
+      "ssm:PutParameter"
+    ],
+    "Resource": ["arn:aws:ssm:*:*:parameter/team/cache/*"]
   }
 ]
