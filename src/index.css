@@ -160,6 +160,32 @@ ul {
 .home-signin {
   margin-top: 24px;
 }
+
+.adl-signin-btn {
+  background: linear-gradient(90deg, #4040FF, #6B6BFF);
+  color: #ffffff;
+  font-family: "Arial Black", Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 40px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(64, 64, 255, 0.3);
+}
+
+.adl-signin-btn:hover {
+  background: linear-gradient(90deg, #3030EE, #5a5aFF);
+  box-shadow: 0 6px 20px rgba(64, 64, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.adl-signin-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(64, 64, 255, 0.3);
+}
 .layout {
   background: #fff;
   position: relative;

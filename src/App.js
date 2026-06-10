@@ -9,7 +9,6 @@ import awsconfig from "./aws-exports";
 import Nav from "./components/Navigation/Nav";
 import home from "./media/Home_optionB.svg";
 import "./index.css";
-import { Button } from "@awsui/components-react";
 
 const { Header, Content } = Layout;
 
@@ -24,12 +23,12 @@ function Home(props) {
           <div className="home-container">
             <img src={home} alt="Homepage" className="home" />
             <div className="home-signin">
-              <Button
-                variant="primary"
+              <button
+                className="adl-signin-btn"
                 onClick={() => Auth.federatedSignIn()}
               >
-                Federated Sign In
-              </Button>
+                Iniciar Sesión Federada
+              </button>
             </div>
           </div>
         </Spin>
