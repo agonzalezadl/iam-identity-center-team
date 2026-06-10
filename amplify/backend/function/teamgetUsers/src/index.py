@@ -5,6 +5,19 @@
 from botocore.exceptions import ClientError
 import boto3
 from operator import itemgetter
+from datetime import datetime
+
+
+def sanitize(obj):
+    """Recursively convert non-JSON-serializable types (e.g. datetime) to strings."""
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    if isinstance(obj, dict):
+        return {k: sanitize(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [sanitize(i) for i in obj]
+    return obj
+
 
 def get_identiy_store_id():
     client = boto3.client('sso-admin')
@@ -25,7 +38,8 @@ def list_idc_users(IdentityStoreId):
         all_users = []
         for page in paginator:
             all_users.extend(page["Users"])
-        return sorted(all_users, key=itemgetter('UserName'))
+        users = sorted(all_users, key=itemgetter('UserName'))
+        return sanitize(users)
     except ClientError as e:
         print(e.response['Error']['Message'])
 

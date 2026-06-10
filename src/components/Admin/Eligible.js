@@ -336,14 +336,23 @@ function Eligible(props) {
 
   function views() {
     getAllEligibility().then((items) => {
-      setAllItems(items);
+      if (Array.isArray(items)) {
+        setAllItems(items);
+      } else {
+        console.error("views: getAllEligibility retornó valor inesperado", items);
+        setAllItems([]);
+      }
       setTableLoading(false);
       setConfirmLoading(false);
       setSubmitLoading(false);
       setVisible(false);
       setDeleteVisible(false);
       handleDismiss();
-      getSettings()
+      getSettings();
+    }).catch((err) => {
+      console.error("views: error cargando eligibility", err);
+      setAllItems([]);
+      setTableLoading(false);
     });
   }
 
@@ -461,57 +470,123 @@ function Eligible(props) {
   function getUsers() {
     setUserStatus("loading");
     fetchUsers().then((data) => {
-      setUsers(data);
+      if (data && Array.isArray(data)) {
+        setUsers(data);
+      } else {
+        console.error("getUsers: respuesta inesperada", data);
+        setUsers([]);
+      }
       setUserStatus("finished");
+    }).catch((err) => {
+      console.error("getUsers error", err);
+      setUsers([]);
+      setUserStatus("error");
     });
   }
 
   function getGroups() {
     setGroupStatus("loading");
     fetchIdCGroups().then((data) => {
-      setGroups(data);
+      if (data && Array.isArray(data)) {
+        setGroups(data);
+      } else {
+        console.error("getGroups: respuesta inesperada", data);
+        setGroups([]);
+      }
       setGroupStatus("finished");
+    }).catch((err) => {
+      console.error("getGroups error", err);
+      setGroups([]);
+      setGroupStatus("error");
     });
   }
 
   function getOUs() {
     setOUStatus("loading");
-    fetchOUs().then(() =>{
+    fetchOUs().then(() => {
       const subscription = API.graphql(
         graphqlOperation(onPublishOUs)
       ).subscribe({
         next: (result) => {
-          const data = result.value.data.onPublishOUs.ous
-          setOUs(JSON.parse(data));
-          setOUStatus("finished");
+          try {
+            const raw = result.value.data.onPublishOUs.ous;
+            const parsed = JSON.parse(raw);
+            setOUs(parsed);
+            setOUStatus("finished");
+          } catch (err) {
+            console.error("getOUs: error parseando OUs", err);
+            setOUs([]);
+            setOUStatus("error");
+          }
           subscription.unsubscribe();
         },
+        error: (err) => {
+          console.error("getOUs: error en suscripción", err);
+          setOUs([]);
+          setOUStatus("error");
+        }
       });
+    }).catch((err) => {
+      console.error("getOUs: error en fetchOUs", err);
+      setOUs([]);
+      setOUStatus("error");
     });
   }
 
   function getAccounts() {
     setAccountStatus("loading");
     fetchAccounts().then((data) => {
-      setAccounts(data);
+      if (data && Array.isArray(data)) {
+        setAccounts(data);
+      } else {
+        console.error("getAccounts: respuesta inesperada", data);
+        setAccounts([]);
+      }
       setAccountStatus("finished");
+    }).catch((err) => {
+      console.error("getAccounts error", err);
+      setAccounts([]);
+      setAccountStatus("error");
     });
   }
 
   function getPermissions() {
     setPermissionStatus("loading");
     fetchPermissions().then((data) => {
+      if (!data || !data.id) {
+        console.error("getPermissions: respuesta inesperada", data);
+        setPermissions([]);
+        setPermissionStatus("error");
+        return;
+      }
       const subscription = API.graphql(
         graphqlOperation(onPublishPermissions)
       ).subscribe({
         next: (result) => {
-          if (result.value.data.onPublishPermissions.id === data.id) {
-            setPermissions(result.value.data.onPublishPermissions.permissions);
-            setPermissionStatus("finished");
+          try {
+            const pubData = result.value.data.onPublishPermissions;
+            if (pubData.id === data.id) {
+              setPermissions(pubData.permissions || []);
+              setPermissionStatus("finished");
+              subscription.unsubscribe();
+            }
+          } catch (err) {
+            console.error("getPermissions: error procesando respuesta", err);
+            setPermissions([]);
+            setPermissionStatus("error");
             subscription.unsubscribe();
           }
         },
+        error: (err) => {
+          console.error("getPermissions: error en suscripción", err);
+          setPermissions([]);
+          setPermissionStatus("error");
+        }
       });
+    }).catch((err) => {
+      console.error("getPermissions error", err);
+      setPermissions([]);
+      setPermissionStatus("error");
     });
   }
 
@@ -838,11 +913,11 @@ function Eligible(props) {
               description="List of Eligible OUs"
               errorText={ouError}
             >
-                {ous.length === 1 ? (<Ous
-                  options={ous}
-                  setResource={setOU}
-                  resource={ou}
-                  />) : <Spinner size="large"/>}
+                {ouStatus === "error"
+                  ? <Box color="text-status-error">Error cargando OUs. Intente recargar la página.</Box>
+                  : ous.length === 1
+                    ? (<Ous options={ous} setResource={setOU} resource={ou} />)
+                    : <Spinner size="large"/>}
 
               {/* <Multiselect
                 statusType={ouStatus}
@@ -1040,11 +1115,11 @@ function Eligible(props) {
               description="List of Eligible OUs"
               errorText={ouError}
             >
-              {ous.length === 1 ? (<Ous
-                  options={ous}
-                  setResource={setOU}
-                  resource={ou}
-                  />) : <Spinner size="large"/>}
+              {ouStatus === "error"
+                ? <Box color="text-status-error">Error cargando OUs. Intente recargar la página.</Box>
+                : ous.length === 1
+                  ? (<Ous options={ous} setResource={setOU} resource={ou} />)
+                  : <Spinner size="large"/>}
               {/* <Multiselect
                 statusType={ouStatus}
                 placeholder="Select OUs"

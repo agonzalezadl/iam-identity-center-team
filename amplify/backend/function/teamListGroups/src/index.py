@@ -5,6 +5,18 @@
 # Amazon Web Services, Inc. or Amazon Web Services EMEA SARL or both.
 import boto3
 from botocore.exceptions import ClientError
+from datetime import datetime
+
+
+def sanitize(obj):
+    """Recursively convert non-JSON-serializable types (e.g. datetime) to strings."""
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    if isinstance(obj, dict):
+        return {k: sanitize(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [sanitize(i) for i in obj]
+    return obj
 
 
 def get_identiy_store_id():
@@ -26,15 +38,14 @@ def list_idc_group_membership(groupId):
         paginator = p.paginate(IdentityStoreId=sso_instance,
         GroupId=groupId,
         )
-        all_groups=[]
+        all_groups = []
         for page in paginator:
             all_groups.extend(page["GroupMemberships"])
-        return all_groups
+        return sanitize(all_groups)
     except ClientError as e:
         print(e.response['Error']['Message'])
         
 def handler(event, context):
-    
     members = []
     groupIds = event["arguments"]["groupIds"]
     for groupId in groupIds:
