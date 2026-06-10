@@ -31,10 +31,12 @@
   <text x="40" y="148" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#687078" letter-spacing="2">IAM Identity Center</text>
 
   <!-- Main title — 4 lines to fit full text -->
-  <text x="40" y="205" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="#16191f">Temporary</text>
-  <text x="40" y="253" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="#16191f">Elevated</text>
-  <text x="40" y="301" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="#16191f">Access</text>
-  <text x="40" y="349" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="url(#adlGrad)">Management</text>
+  <text x="40" y="185" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="#16191f">Temporary</text>
+  <text x="40" y="233" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="#16191f">Elevated</text>
+  <text x="40" y="281" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="#16191f">Access</text>
+  <text x="40" y="329" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" fill="url(#adlGrad)">Management</text>
+
+  <!-- Space for button at top:330px -->
 
   <!-- Description -->
   <text x="40" y="390" font-family="Arial, sans-serif" font-size="13" fill="#687078">Automated, approval-based workflow for elevating user</text>
