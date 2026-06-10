@@ -14,9 +14,9 @@
   },
   {
     "Action": [
-      "ssm:GetParameter",
-      "ssm:PutParameter"
+      "s3:GetObject",
+      "s3:PutObject"
     ],
-    "Resource": ["arn:aws:ssm:*:*:parameter/team/cache/*"]
+    "Resource": ["arn:aws:s3:::amplify-teamidcapp-pro-048c2-deployment/team-cache/*"]
   }
 ]

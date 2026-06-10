@@ -13,13 +13,12 @@ import requests
 from requests_aws_sign import AWSV4Sign
 
 client = boto3.client('sso-admin')
-ssm_client = boto3.client('ssm')
+s3_client = boto3.client('s3')
 
 ACCOUNT_ID = os.environ['ACCOUNT_ID']
-
-# Caché TTL en segundos (4 horas). Los PS no cambian con frecuencia.
 CACHE_TTL = int(os.environ.get('PERMISSIONS_CACHE_TTL', '14400'))
-SSM_CACHE_KEY = os.environ.get('PERMISSIONS_CACHE_KEY', '/team/cache/permission-sets')
+CACHE_BUCKET = os.environ.get('PERMISSIONS_CACHE_BUCKET', f'amplify-teamidcapp-pro-048c2-deployment')
+CACHE_KEY = 'team-cache/permission-sets.json'
 
 
 def publishPermissions(result):
@@ -121,34 +120,34 @@ def getPS(ps):
 
 
 def load_cache():
-    """Lee la caché de SSM. Retorna (permissions_list, timestamp) o (None, 0) si no existe."""
+    """Lee la caché de S3. Retorna (permissions_list, timestamp) o (None, 0) si no existe."""
     try:
-        response = ssm_client.get_parameter(Name=SSM_CACHE_KEY)
-        cached = json.loads(response['Parameter']['Value'])
+        response = s3_client.get_object(Bucket=CACHE_BUCKET, Key=CACHE_KEY)
+        cached = json.loads(response['Body'].read().decode('utf-8'))
         return cached.get('permissions', []), cached.get('timestamp', 0)
-    except ssm_client.exceptions.ParameterNotFound:
+    except s3_client.exceptions.NoSuchKey:
         return None, 0
     except Exception as e:
-        print(f"Error leyendo caché SSM: {e}")
+        print(f"Error leyendo caché S3: {e}")
         return None, 0
 
 
 def save_cache(permissions):
-    """Guarda la lista de permissions en SSM con timestamp."""
+    """Guarda la lista de permissions en S3 con timestamp."""
     try:
         value = json.dumps({
             'permissions': permissions,
             'timestamp': int(time.time())
         })
-        ssm_client.put_parameter(
-            Name=SSM_CACHE_KEY,
-            Value=value,
-            Type='String',
-            Overwrite=True
+        s3_client.put_object(
+            Bucket=CACHE_BUCKET,
+            Key=CACHE_KEY,
+            Body=value.encode('utf-8'),
+            ContentType='application/json'
         )
-        print(f"Caché guardada con {len(permissions)} permission sets")
+        print(f"Caché S3 guardada con {len(permissions)} permission sets")
     except Exception as e:
-        print(f"Error guardando caché SSM: {e}")
+        print(f"Error guardando caché S3: {e}")
 
 
 def fetch_all_permissions():
@@ -174,9 +173,9 @@ def fetch_all_permissions():
 
     print(f"Total ARNs a describir: {len(all_arns)}")
 
-    # 2. Describir en paralelo con ThreadPoolExecutor
+    # 2. Describir en paralelo — 5 workers para respetar rate limits de IAM IC
     permissions = []
-    with ThreadPoolExecutor(max_workers=20) as executor:
+    with ThreadPoolExecutor(max_workers=5) as executor:
         futures = {executor.submit(getPS, arn): arn for arn in all_arns}
         for future in as_completed(futures):
             result = future.result()
