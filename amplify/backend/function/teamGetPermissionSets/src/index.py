@@ -104,19 +104,25 @@ def get_mgmt_ps():
 
 
 def getPS(ps):
-    try:
-        response = client.describe_permission_set(
-            InstanceArn=sso_instance['InstanceArn'],
-            PermissionSetArn=ps
-        )
-        return {
-            'Name': response['PermissionSet']['Name'],
-            'Arn': response['PermissionSet']['PermissionSetArn'],
-            'Duration': None
-        }
-    except ClientError as e:
-        print(e.response['Error']['Message'])
-        return None
+    """Describe un permission set con retry automático en caso de throttling."""
+    for attempt in range(3):
+        try:
+            response = client.describe_permission_set(
+                InstanceArn=sso_instance['InstanceArn'],
+                PermissionSetArn=ps
+            )
+            return {
+                'Name': response['PermissionSet']['Name'],
+                'Arn': response['PermissionSet']['PermissionSetArn'],
+                'Duration': None
+            }
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == 'ThrottlingException' and attempt < 2:
+                time.sleep(2 ** attempt)  # backoff: 1s, 2s
+                continue
+            print(e.response['Error']['Message'])
+            return None
 
 
 def load_cache():
@@ -173,9 +179,9 @@ def fetch_all_permissions():
 
     print(f"Total ARNs a describir: {len(all_arns)}")
 
-    # 2. Describir en paralelo — 5 workers para respetar rate limits de IAM IC
+    # 2. Describir en paralelo — 3 workers para respetar rate limits de IAM IC
     permissions = []
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=3) as executor:
         futures = {executor.submit(getPS, arn): arn for arn in all_arns}
         for future in as_completed(futures):
             result = future.result()
