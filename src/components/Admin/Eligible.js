@@ -553,71 +553,63 @@ function Eligible(props) {
   function getPermissions() {
     setPermissionStatus("loading");
 
-    let expectedId = null;
-    let receivedBeforeId = null;
-    let fetchCalled = false;
+    fetchPermissions().then((data) => {
+      if (!data) {
+        console.error("getPermissions: respuesta nula");
+        setPermissions([]);
+        setPermissionStatus("error");
+        return;
+      }
 
-    const subscription = API.graphql(
-      graphqlOperation(onPublishPermissions)
-    ).subscribe({
-      next: (result) => {
-        try {
-          const pubData = result.value.data.onPublishPermissions;
-          if (!pubData) return;
+      // Cache HIT: la lambda retornó los permisos directamente
+      if (data.permissions && data.permissions.length > 0) {
+        console.log(`getPermissions: ${data.permissions.length} permisos recibidos directamente`);
+        setPermissions(data.permissions);
+        setPermissionStatus("finished");
+        return;
+      }
 
-          if (expectedId === null) {
-            // Evento llegó antes de tener el id, guardarlo
-            receivedBeforeId = pubData;
-          } else if (pubData.id === expectedId) {
-            setPermissions(pubData.permissions || []);
-            setPermissionStatus("finished");
+      // Cache MISS: la lambda disparó refresh async — suscribirse para recibir cuando esté listo
+      if (!data.id) {
+        console.error("getPermissions: respuesta sin id");
+        setPermissions([]);
+        setPermissionStatus("error");
+        return;
+      }
+
+      console.log("getPermissions: cache miss, esperando publicación via subscription...");
+      const expectedId = data.id;
+
+      const subscription = API.graphql(
+        graphqlOperation(onPublishPermissions)
+      ).subscribe({
+        next: (result) => {
+          try {
+            const pubData = result.value.data.onPublishPermissions;
+            if (!pubData) return;
+            if (pubData.id === expectedId) {
+              setPermissions(pubData.permissions || []);
+              setPermissionStatus("finished");
+              subscription.unsubscribe();
+            }
+          } catch (err) {
+            console.error("getPermissions: error en subscription", err);
+            setPermissions([]);
+            setPermissionStatus("error");
             subscription.unsubscribe();
           }
-        } catch (err) {
-          console.error("getPermissions: error procesando respuesta", err);
+        },
+        error: (err) => {
+          console.error("getPermissions: error en suscripción", err);
           setPermissions([]);
           setPermissionStatus("error");
-          subscription.unsubscribe();
         }
-      },
-      error: (err) => {
-        console.error("getPermissions: error en suscripción", err);
-        setPermissions([]);
-        setPermissionStatus("error");
-      }
-    });
-
-    // Esperar 800ms para que el WebSocket de AppSync se establezca
-    // antes de disparar la lambda (que responde en ~480ms)
-    const doFetch = () => {
-      if (fetchCalled) return;
-      fetchCalled = true;
-
-      fetchPermissions().then((data) => {
-        if (!data || !data.id) {
-          console.error("getPermissions: respuesta inesperada", data);
-          setPermissions([]);
-          setPermissionStatus("error");
-          subscription.unsubscribe();
-          return;
-        }
-        expectedId = data.id;
-
-        // Si el evento llegó antes de tener el id
-        if (receivedBeforeId && receivedBeforeId.id === expectedId) {
-          setPermissions(receivedBeforeId.permissions || []);
-          setPermissionStatus("finished");
-          subscription.unsubscribe();
-        }
-      }).catch((err) => {
-        console.error("getPermissions error", err);
-        setPermissions([]);
-        setPermissionStatus("error");
-        subscription.unsubscribe();
       });
-    };
-
-    setTimeout(doFetch, 800);
+    }).catch((err) => {
+      console.error("getPermissions error", err);
+      setPermissions([]);
+      setPermissionStatus("error");
+    });
   }
 
   const onResourceChange = (value) => {
