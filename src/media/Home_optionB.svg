@@ -33,40 +33,40 @@
   <rect x="52" y="344" width="70" height="4" rx="2" fill="url(#adlGrad)"/>
 
   <!-- Descripcion -->
-  <text x="52" y="378" font-family="Arial, sans-serif" font-size="13.5" fill="#687078">Automated, approval-based workflow for managing</text>
-  <text x="52" y="398" font-family="Arial, sans-serif" font-size="13.5" fill="#687078">time-bound elevated access to your AWS environment.</text>
+  <text x="52" y="378" font-family="Arial, sans-serif" font-size="13.5" fill="#687078">Flujo de aprobación automatizado para gestionar</text>
+  <text x="52" y="398" font-family="Arial, sans-serif" font-size="13.5" fill="#687078">acceso elevado temporal en tu entorno AWS.</text>
 
   <!-- Card 1 -->
   <rect x="492" y="108" width="376" height="82" rx="16" fill="#f5f5ff" stroke="#d0d0ff" stroke-width="1.5"/>
   <rect x="510" y="130" width="42" height="42" rx="21" fill="#4040FF" opacity="0.10"/>
   <text x="531" y="157" font-family="Arial, sans-serif" font-size="22" text-anchor="middle">&#x1F512;</text>
-  <text x="570" y="140" font-family="Arial Black, sans-serif" font-size="14" font-weight="800" fill="#0a1628">Approval Workflow</text>
-  <text x="570" y="158" font-family="Arial, sans-serif" font-size="12" fill="#687078">Request, approve and audit access</text>
-  <text x="570" y="174" font-family="Arial, sans-serif" font-size="12" fill="#687078">with a full audit trail</text>
+  <text x="570" y="140" font-family="Arial Black, sans-serif" font-size="14" font-weight="800" fill="#0a1628">Flujo de Aprobación</text>
+  <text x="570" y="158" font-family="Arial, sans-serif" font-size="12" fill="#687078">Solicita, aprueba y audita accesos</text>
+  <text x="570" y="174" font-family="Arial, sans-serif" font-size="12" fill="#687078">con trazabilidad completa</text>
 
   <!-- Card 2 -->
   <rect x="492" y="204" width="376" height="82" rx="16" fill="#f5f5ff" stroke="#d0d0ff" stroke-width="1.5"/>
   <rect x="510" y="226" width="42" height="42" rx="21" fill="#4040FF" opacity="0.10"/>
   <text x="531" y="253" font-family="Arial, sans-serif" font-size="22" text-anchor="middle">&#x23F1;</text>
-  <text x="570" y="236" font-family="Arial Black, sans-serif" font-size="14" font-weight="800" fill="#0a1628">Time-bound Access</text>
-  <text x="570" y="254" font-family="Arial, sans-serif" font-size="12" fill="#687078">Sessions expire automatically after</text>
-  <text x="570" y="270" font-family="Arial, sans-serif" font-size="12" fill="#687078">the defined duration</text>
+  <text x="570" y="236" font-family="Arial Black, sans-serif" font-size="14" font-weight="800" fill="#0a1628">Acceso Temporizado</text>
+  <text x="570" y="254" font-family="Arial, sans-serif" font-size="12" fill="#687078">Las sesiones expiran automáticamente</text>
+  <text x="570" y="270" font-family="Arial, sans-serif" font-size="12" fill="#687078">tras la duración definida</text>
 
   <!-- Card 3 -->
   <rect x="492" y="300" width="376" height="82" rx="16" fill="#f5f5ff" stroke="#d0d0ff" stroke-width="1.5"/>
   <rect x="510" y="322" width="42" height="42" rx="21" fill="#4040FF" opacity="0.10"/>
   <text x="531" y="349" font-family="Arial, sans-serif" font-size="22" text-anchor="middle">&#x1F4CA;</text>
-  <text x="570" y="332" font-family="Arial Black, sans-serif" font-size="14" font-weight="800" fill="#0a1628">Full Audit Logs</text>
-  <text x="570" y="350" font-family="Arial, sans-serif" font-size="12" fill="#687078">Correlate justification with session</text>
-  <text x="570" y="366" font-family="Arial, sans-serif" font-size="12" fill="#687078">activity across all accounts</text>
+  <text x="570" y="332" font-family="Arial Black, sans-serif" font-size="14" font-weight="800" fill="#0a1628">Auditoría Completa</text>
+  <text x="570" y="350" font-family="Arial, sans-serif" font-size="12" fill="#687078">Correlaciona justificación con actividad</text>
+  <text x="570" y="366" font-family="Arial, sans-serif" font-size="12" fill="#687078">de sesión en todas las cuentas</text>
 
   <!-- Card 4 -->
   <rect x="492" y="396" width="376" height="82" rx="16" fill="#f5f5ff" stroke="#d0d0ff" stroke-width="1.5"/>
   <rect x="510" y="418" width="42" height="42" rx="21" fill="#4040FF" opacity="0.10"/>
   <text x="531" y="445" font-family="Arial, sans-serif" font-size="22" text-anchor="middle">&#x1F465;</text>
-  <text x="570" y="428" font-family="Arial Black, sans-serif" font-size="14" font-weight="800" fill="#0a1628">SSO Integration</text>
-  <text x="570" y="446" font-family="Arial, sans-serif" font-size="12" fill="#687078">SAML-based single sign-on with</text>
-  <text x="570" y="462" font-family="Arial, sans-serif" font-size="12" fill="#687078">Cognito group-based authorization</text>
+  <text x="570" y="428" font-family="Arial Black, sans-serif" font-size="14" font-weight="800" fill="#0a1628">Integración SSO</text>
+  <text x="570" y="446" font-family="Arial, sans-serif" font-size="12" fill="#687078">Single sign-on SAML con</text>
+  <text x="570" y="462" font-family="Arial, sans-serif" font-size="12" fill="#687078">autorización por grupos de Cognito</text>
 
   <!-- Barra inferior -->
   <rect x="0" y="534" width="900" height="6" fill="url(#adlGrad)" opacity="0.95"/>
