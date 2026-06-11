@@ -552,41 +552,62 @@ function Eligible(props) {
 
   function getPermissions() {
     setPermissionStatus("loading");
+
+    // Suscribirse ANTES de disparar la query para no perder el evento
+    let expectedId = null;
+    let receivedBeforeId = null; // por si el evento llega antes de que tengamos el id
+
+    const subscription = API.graphql(
+      graphqlOperation(onPublishPermissions)
+    ).subscribe({
+      next: (result) => {
+        try {
+          const pubData = result.value.data.onPublishPermissions;
+          if (!pubData) return;
+
+          // Si ya tenemos el id esperado, comparar; si no, guardar para comparar después
+          if (expectedId === null) {
+            receivedBeforeId = pubData;
+          } else if (pubData.id === expectedId) {
+            setPermissions(pubData.permissions || []);
+            setPermissionStatus("finished");
+            subscription.unsubscribe();
+          }
+        } catch (err) {
+          console.error("getPermissions: error procesando respuesta", err);
+          setPermissions([]);
+          setPermissionStatus("error");
+          subscription.unsubscribe();
+        }
+      },
+      error: (err) => {
+        console.error("getPermissions: error en suscripción", err);
+        setPermissions([]);
+        setPermissionStatus("error");
+      }
+    });
+
     fetchPermissions().then((data) => {
       if (!data || !data.id) {
         console.error("getPermissions: respuesta inesperada", data);
         setPermissions([]);
         setPermissionStatus("error");
+        subscription.unsubscribe();
         return;
       }
-      const subscription = API.graphql(
-        graphqlOperation(onPublishPermissions)
-      ).subscribe({
-        next: (result) => {
-          try {
-            const pubData = result.value.data.onPublishPermissions;
-            if (pubData.id === data.id) {
-              setPermissions(pubData.permissions || []);
-              setPermissionStatus("finished");
-              subscription.unsubscribe();
-            }
-          } catch (err) {
-            console.error("getPermissions: error procesando respuesta", err);
-            setPermissions([]);
-            setPermissionStatus("error");
-            subscription.unsubscribe();
-          }
-        },
-        error: (err) => {
-          console.error("getPermissions: error en suscripción", err);
-          setPermissions([]);
-          setPermissionStatus("error");
-        }
-      });
+      expectedId = data.id;
+
+      // Si el evento llegó antes de que tuviéramos el id, procesarlo ahora
+      if (receivedBeforeId && receivedBeforeId.id === expectedId) {
+        setPermissions(receivedBeforeId.permissions || []);
+        setPermissionStatus("finished");
+        subscription.unsubscribe();
+      }
     }).catch((err) => {
       console.error("getPermissions error", err);
       setPermissions([]);
       setPermissionStatus("error");
+      subscription.unsubscribe();
     });
   }
 
