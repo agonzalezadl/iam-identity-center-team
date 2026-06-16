@@ -170,8 +170,8 @@ const startQuery = async (event) => {
     WHERE ${partitionFilter}
       AND eventtime >= '${startTime}'
       AND eventtime <= '${endTime}'
-      AND lower(json_extract_scalar(useridentity, '$.principalId')) LIKE '%:${username.toLowerCase()}%'
-      AND json_extract_scalar(useridentity, '$.sessionContext.sessionIssuer.arn') LIKE '%${role}%'
+      AND lower(json_extract_scalar(useridentity, '$.principalid')) LIKE '%:${username.toLowerCase()}%'
+      AND json_extract_scalar(useridentity, '$.sessioncontext.sessionissuer.arn') LIKE '%${role}%'
       AND recipientaccountid = '${accountId}'
     LIMIT 1000
   `;
