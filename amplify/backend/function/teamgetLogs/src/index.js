@@ -16,25 +16,23 @@ import { HttpRequest } from '@aws-sdk/protocol-http';
 import { default as fetch, Request } from 'node-fetch';
 
 import {
-  CloudTrailClient,
-  StartQueryCommand,
-  DescribeQueryCommand,
-} from "@aws-sdk/client-cloudtrail"
+  AthenaClient,
+  StartQueryExecutionCommand,
+  GetQueryExecutionCommand,
+} from "@aws-sdk/client-athena";
 
 const { Sha256 } = crypto;
-const REGION = process.env.REGION;
-const EventDataStore = (process.env.EVENT_DATA_STORE).split("/").pop();
+const REGION = process.env.REGION || 'us-east-1';
 const GRAPHQL_ENDPOINT = process.env.API_TEAM_GRAPHQLAPIENDPOINTOUTPUT;
 
-// const {
-//   CloudTrailClient,
-//   StartQueryCommand,
-//   DescribeQueryCommand,
-// } = require("@aws-sdk/client-cloudtrail");
+// Athena config — variables de entorno en la lambda
+const ATHENA_DATABASE = process.env.ATHENA_DATABASE || 'cloudtrail_logs';
+const ATHENA_TABLE    = process.env.ATHENA_TABLE    || 'cloudtrail_logs';
+const ATHENA_OUTPUT   = process.env.ATHENA_OUTPUT_LOCATION; // s3://bucket/athena-results/
 
-const client = new CloudTrailClient({ region: REGION });
+const athena = new AthenaClient({ region: REGION });
 
-const query = /* GraphQL */ `
+const graphqlMutation = /* GraphQL */ `
   mutation UpdateSessions(
     $input: UpdateSessionsInput!
     $condition: ModelSessionsConditionInput
@@ -55,36 +53,23 @@ const query = /* GraphQL */ `
   }
 `;
 
-/**
- * @type {import('@types/aws-lambda').APIGatewayProxyHandler}
- */
-
 const updateItem = async (id, queryId) => {
-  const variables = {
-    input: {
-      id: id,
-      queryId: queryId
-    } 
-  }
-
+  const variables = { input: { id, queryId } };
   const endpoint = new URL(GRAPHQL_ENDPOINT);
 
   const signer = new SignatureV4({
     credentials: defaultProvider(),
     region: REGION,
     service: 'appsync',
-    sha256: Sha256
+    sha256: Sha256,
   });
 
   const requestToBeSigned = new HttpRequest({
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      host: endpoint.host
-    },
+    headers: { 'Content-Type': 'application/json', host: endpoint.host },
     hostname: endpoint.host,
-    body: JSON.stringify({ query, variables }),
-    path: endpoint.pathname
+    body: JSON.stringify({ query: graphqlMutation, variables }),
+    path: endpoint.pathname,
   });
 
   const signed = await signer.sign(requestToBeSigned);
@@ -101,70 +86,110 @@ const updateItem = async (id, queryId) => {
     if (body.errors) statusCode = 400;
   } catch (error) {
     statusCode = 400;
-    body = {
-      errors: [
-        {
-          status: response.status,
-          message: error.message,
-          stack: error.stack
-        }
-      ]
-    };
+    body = { errors: [{ status: response?.status, message: error.message }] };
   }
 
-  return {
-    statusCode,
-    body: JSON.stringify(body)
-  };
+  return { statusCode, body: JSON.stringify(body) };
 };
 
-
-const get_query_status = async (queryId) => {
+const getQueryStatus = async (queryExecutionId) => {
   try {
-    const input = {
-      EventDataStore: EventDataStore,
-      QueryId: queryId,
-    };
-    const command = new DescribeQueryCommand(input);
-    const response = await client.send(command);
-    return response.QueryStatus;
+    const cmd = new GetQueryExecutionCommand({ QueryExecutionId: queryExecutionId });
+    const res = await athena.send(cmd);
+    return res.QueryExecution.Status.State; // QUEUED | RUNNING | SUCCEEDED | FAILED | CANCELLED
   } catch (err) {
-    console.log("Error", err);
+    console.log("Error getting Athena query status", err);
+    return 'FAILED';
   }
 };
 
-const start_query = async (event) => {
+const startQuery = async (event) => {
   const startTime = event["startTime"]["S"];
-  const endTime = event["endTime"]["S"];
-  const  username = event["username"]["S"].replace('idc_', '');
+  const endTime   = event["endTime"]["S"];
+  const username  = event["username"]["S"].replace('idc_', '');
   const accountId = event["accountId"]["S"];
-  const role = event["role"]["S"];
+  const role      = event["role"]["S"];
+
+  // Extraer rangos de fecha para las particiones
+  const start = new Date(startTime);
+  const end   = new Date(endTime);
+
+  // Construir filtros de partición para cubrir el rango de fechas
+  // Usamos año/mes del inicio y fin — cubre sesiones de hasta 1 mes
+  const startYear  = String(start.getUTCFullYear());
+  const startMonth = String(start.getUTCMonth() + 1).padStart(2, '0');
+  const startDay   = String(start.getUTCDate()).padStart(2, '0');
+  const endYear    = String(end.getUTCFullYear());
+  const endMonth   = String(end.getUTCMonth() + 1).padStart(2, '0');
+  const endDay     = String(end.getUTCDate()).padStart(2, '0');
+
+  // Partition projection — incluir días del rango
+  // Para simplificar: si mismo mes, filtrar día exacto; si distinto mes, filtrar por año/mes
+  let partitionFilter;
+  if (startYear === endYear && startMonth === endMonth) {
+    if (startDay === endDay) {
+      partitionFilter = `account_id = '${accountId}' AND year = '${startYear}' AND month = '${startMonth}' AND day = '${startDay}'`;
+    } else {
+      partitionFilter = `account_id = '${accountId}' AND year = '${startYear}' AND month = '${startMonth}' AND day BETWEEN '${startDay}' AND '${endDay}'`;
+    }
+  } else {
+    partitionFilter = `account_id = '${accountId}' AND year = '${startYear}' AND month = '${startMonth}'`;
+  }
+
+  // Athena SQL con particiones para eficiencia
+  const sql = `
+    SELECT eventid, eventname, eventsource, eventtime
+    FROM ${ATHENA_DATABASE}.${ATHENA_TABLE}
+    WHERE ${partitionFilter}
+      AND eventtime >= '${startTime}'
+      AND eventtime <= '${endTime}'
+      AND lower(useridentity.principalid) LIKE '%:${username.toLowerCase()}%'
+      AND useridentity.sessioncontext.sessionissuer.arn LIKE '%${role}%'
+      AND recipientaccountid = '${accountId}'
+    LIMIT 1000
+  `;
+
+  console.log("Athena SQL:", sql);
+
   try {
-    const input = {
-      QueryStatement: `SELECT eventID, eventName, eventSource, eventTime FROM ${EventDataStore} WHERE eventTime > '${startTime}' AND eventTime < '${endTime}' AND lower(useridentity.principalId) LIKE '%:${username}%' AND useridentity.sessionContext.sessionIssuer.arn LIKE '%${role}%' AND recipientAccountId='${accountId}'`,
-    };
-    const command = new StartQueryCommand(input);
-    const response = await client.send(command);
-    return response.QueryId;
+    const cmd = new StartQueryExecutionCommand({
+      QueryString: sql,
+      QueryExecutionContext: { Database: ATHENA_DATABASE },
+      ResultConfiguration: { OutputLocation: ATHENA_OUTPUT },
+    });
+    const res = await athena.send(cmd);
+    return res.QueryExecutionId;
   } catch (err) {
-    console.log("Error", err);
+    console.log("Error starting Athena query", err);
+    throw err;
   }
 };
 
 export const handler = async (event) => {
-  let data = event["Records"].pop()
-  data = data["dynamodb"]["NewImage"]
-  const id = data["id"]["S"]
+  let data = event["Records"].pop();
+  data = data["dynamodb"]["NewImage"];
+  const id = data["id"]["S"];
   console.log("Event", data);
-  const queryId = await start_query(data);
-  let status = await get_query_status(queryId);
-  while (status) {
-    console.log(status);
-    status = await get_query_status(queryId);
-    if (status === "FINISHED") {
-      console.log("query Finished - queryId:", queryId );
-      const response = await updateItem (id, queryId);
-      return response;
-    }
+
+  const queryExecutionId = await startQuery(data);
+  console.log("Athena QueryExecutionId:", queryExecutionId);
+
+  // Esperar hasta SUCCEEDED o FAILED (máx ~25s para no timeout de Lambda)
+  let status = await getQueryStatus(queryExecutionId);
+  let attempts = 0;
+  while (['QUEUED', 'RUNNING'].includes(status) && attempts < 25) {
+    await new Promise(r => setTimeout(r, 1000));
+    status = await getQueryStatus(queryExecutionId);
+    attempts++;
+    console.log(`Athena status [${attempts}]: ${status}`);
+  }
+
+  if (status === 'SUCCEEDED') {
+    console.log("Query finished — saving queryId:", queryExecutionId);
+    const response = await updateItem(id, queryExecutionId);
+    return response;
+  } else {
+    console.log("Query did not succeed:", status);
+    return { statusCode: 500, body: JSON.stringify({ error: `Athena query ${status}` }) };
   }
 };
