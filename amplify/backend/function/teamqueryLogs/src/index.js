@@ -4,13 +4,36 @@
 //  Amazon Web Services, Inc. or Amazon Web Services EMEA SARL or both.
 
 const { AthenaClient, GetQueryResultsCommand } = require("@aws-sdk/client-athena");
+const { STSClient, AssumeRoleCommand } = require("@aws-sdk/client-sts");
 
 const REGION = process.env.REGION || 'us-east-1';
 const ATHENA_REGION = process.env.ATHENA_REGION || 'us-east-2';
-const client = new AthenaClient({ region: ATHENA_REGION });
+const ATHENA_ASSUME_ROLE_ARN = process.env.ATHENA_ASSUME_ROLE_ARN;
+
+const getAthenaClient = async () => {
+  if (ATHENA_ASSUME_ROLE_ARN) {
+    const sts = new STSClient({ region: REGION });
+    const assumed = await sts.send(new AssumeRoleCommand({
+      RoleArn: ATHENA_ASSUME_ROLE_ARN,
+      RoleSessionName: 'TeamQueryLogsSession',
+      DurationSeconds: 900,
+    }));
+    const { AccessKeyId, SecretAccessKey, SessionToken } = assumed.Credentials;
+    return new AthenaClient({
+      region: ATHENA_REGION,
+      credentials: {
+        accessKeyId: AccessKeyId,
+        secretAccessKey: SecretAccessKey,
+        sessionToken: SessionToken,
+      },
+    });
+  }
+  return new AthenaClient({ region: ATHENA_REGION });
+};
 
 const getQueryResults = async (queryExecutionId) => {
   try {
+    const client = await getAthenaClient();
     const output = [];
     let nextToken = undefined;
 

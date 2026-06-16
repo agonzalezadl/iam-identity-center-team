@@ -21,17 +21,42 @@ import {
   GetQueryExecutionCommand,
 } from "@aws-sdk/client-athena";
 
+import {
+  STSClient,
+  AssumeRoleCommand,
+} from "@aws-sdk/client-sts";
+
 const { Sha256 } = crypto;
 const REGION = process.env.REGION || 'us-east-1';
 const ATHENA_REGION = process.env.ATHENA_REGION || 'us-east-2';
 const GRAPHQL_ENDPOINT = process.env.API_TEAM_GRAPHQLAPIENDPOINTOUTPUT;
 
-// Athena config — variables de entorno en la lambda
-const ATHENA_DATABASE = process.env.ATHENA_DATABASE || 'cloudtrail_logs';
-const ATHENA_TABLE    = process.env.ATHENA_TABLE    || 'cloudtrail_logs';
-const ATHENA_OUTPUT   = process.env.ATHENA_OUTPUT_LOCATION; // s3://bucket/athena-results/
+const ATHENA_DATABASE       = process.env.ATHENA_DATABASE || 'cloudtrail_logs';
+const ATHENA_TABLE          = process.env.ATHENA_TABLE    || 'cloudtrail_logs';
+const ATHENA_OUTPUT         = process.env.ATHENA_OUTPUT_LOCATION;
+const ATHENA_ASSUME_ROLE_ARN = process.env.ATHENA_ASSUME_ROLE_ARN; // arn:aws:iam::406357340800:role/TeamAthenaQueryRole
 
-const athena = new AthenaClient({ region: ATHENA_REGION });
+// Obtener credenciales via AssumeRole si está configurado
+const getAthenaClient = async () => {
+  if (ATHENA_ASSUME_ROLE_ARN) {
+    const sts = new STSClient({ region: REGION });
+    const assumed = await sts.send(new AssumeRoleCommand({
+      RoleArn: ATHENA_ASSUME_ROLE_ARN,
+      RoleSessionName: 'TeamGetLogsSession',
+      DurationSeconds: 900,
+    }));
+    const { AccessKeyId, SecretAccessKey, SessionToken } = assumed.Credentials;
+    return new AthenaClient({
+      region: ATHENA_REGION,
+      credentials: {
+        accessKeyId: AccessKeyId,
+        secretAccessKey: SecretAccessKey,
+        sessionToken: SessionToken,
+      },
+    });
+  }
+  return new AthenaClient({ region: ATHENA_REGION });
+};
 
 const graphqlMutation = /* GraphQL */ `
   mutation UpdateSessions(
@@ -95,9 +120,10 @@ const updateItem = async (id, queryId) => {
 
 const getQueryStatus = async (queryExecutionId) => {
   try {
+    const athena = await getAthenaClient();
     const cmd = new GetQueryExecutionCommand({ QueryExecutionId: queryExecutionId });
     const res = await athena.send(cmd);
-    return res.QueryExecution.Status.State; // QUEUED | RUNNING | SUCCEEDED | FAILED | CANCELLED
+    return res.QueryExecution.Status.State;
   } catch (err) {
     console.log("Error getting Athena query status", err);
     return 'FAILED';
@@ -153,6 +179,7 @@ const startQuery = async (event) => {
   console.log("Athena SQL:", sql);
 
   try {
+    const athena = await getAthenaClient();
     const cmd = new StartQueryExecutionCommand({
       QueryString: sql,
       QueryExecutionContext: { Database: ATHENA_DATABASE },
