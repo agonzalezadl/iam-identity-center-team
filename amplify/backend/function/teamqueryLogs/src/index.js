@@ -6,7 +6,8 @@
 const { AthenaClient, GetQueryResultsCommand } = require("@aws-sdk/client-athena");
 
 const REGION = process.env.REGION || 'us-east-1';
-const client = new AthenaClient({ region: REGION });
+const ATHENA_REGION = process.env.ATHENA_REGION || 'us-east-2';
+const client = new AthenaClient({ region: ATHENA_REGION });
 
 const getQueryResults = async (queryExecutionId) => {
   try {

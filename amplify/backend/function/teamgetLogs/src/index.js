@@ -23,6 +23,7 @@ import {
 
 const { Sha256 } = crypto;
 const REGION = process.env.REGION || 'us-east-1';
+const ATHENA_REGION = process.env.ATHENA_REGION || 'us-east-2';
 const GRAPHQL_ENDPOINT = process.env.API_TEAM_GRAPHQLAPIENDPOINTOUTPUT;
 
 // Athena config — variables de entorno en la lambda
@@ -30,7 +31,7 @@ const ATHENA_DATABASE = process.env.ATHENA_DATABASE || 'cloudtrail_logs';
 const ATHENA_TABLE    = process.env.ATHENA_TABLE    || 'cloudtrail_logs';
 const ATHENA_OUTPUT   = process.env.ATHENA_OUTPUT_LOCATION; // s3://bucket/athena-results/
 
-const athena = new AthenaClient({ region: REGION });
+const athena = new AthenaClient({ region: ATHENA_REGION });
 
 const graphqlMutation = /* GraphQL */ `
   mutation UpdateSessions(
