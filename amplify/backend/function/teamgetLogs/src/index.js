@@ -163,15 +163,15 @@ const startQuery = async (event) => {
     partitionFilter = `account_id = '${accountId}' AND year = '${startYear}' AND month = '${startMonth}'`;
   }
 
-  // Athena SQL con particiones para eficiencia
+  // Athena SQL con json_extract_scalar para evitar HIVE_BAD_DATA en campos useridentity nulos
   const sql = `
     SELECT eventid, eventname, eventsource, eventtime
     FROM ${ATHENA_DATABASE}.${ATHENA_TABLE}
     WHERE ${partitionFilter}
       AND eventtime >= '${startTime}'
       AND eventtime <= '${endTime}'
-      AND lower(useridentity.principalid) LIKE '%:${username.toLowerCase()}%'
-      AND useridentity.sessioncontext.sessionissuer.arn LIKE '%${role}%'
+      AND lower(json_extract_scalar(useridentity, '$.principalId')) LIKE '%:${username.toLowerCase()}%'
+      AND json_extract_scalar(useridentity, '$.sessionContext.sessionIssuer.arn') LIKE '%${role}%'
       AND recipientaccountid = '${accountId}'
     LIMIT 1000
   `;
